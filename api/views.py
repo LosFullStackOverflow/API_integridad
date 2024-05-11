@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view
 
@@ -18,7 +19,7 @@ def get_one(request, email):
         cliente = Cliente.objects.get(email=email)
     except Cliente.DoesNotExist:
         return Response({'error': 'No existe el usuario'})
-    serializer = ClienteWithOutPasswordSerializer(cliente, many=False)
+    serializer = ClienteSerializer(cliente, many=False)
     return Response(serializer.data)
 
 
@@ -34,20 +35,23 @@ def create(request):
 
 @api_view(['POST'])
 def update(request, email):
-    # Using .get() to avoid KeyError if 'cliente' is not present
-    clienteRequest = request.data.get('cliente', {})
-    emailRequest = request.data.get('email', '')
-    passwordRequest = request.data.get('password', '')
+    # Using .get() to avoid KeyError if 'email', 'password', or 'newPassword' are not present
+    email_request = request.data.get('email', '')
+    password_request = request.data.get('password', '')
+    new_password_request = request.data.get('newPassword', '')
+
     try:
         cliente = Cliente.objects.get(email=email)
     except Cliente.DoesNotExist:
-        return Response({'error': 'No existe el usuario'})
-    if emailRequest != cliente.email or passwordRequest != cliente.password:
-        return Response({'error': 'No tienes los permisos para cambiar a este usuario'})
-    serializer = ClienteSerializer(
-        instance=cliente, data=clienteRequest)
-    if serializer.is_valid():
-        serializer.save()
+        return Response({'error': 'No existe el usuario'}, status=status.HTTP_404_NOT_FOUND)
+
+    if email_request != cliente.email or password_request != cliente.password:
+        return Response({'error': 'No tienes los permisos para cambiar a este usuario'}, status=status.HTTP_403_FORBIDDEN)
+
+    if new_password_request != '':
+        cliente.password = new_password_request
+        cliente.save()
+        serializer = ClienteSerializer(cliente, many=False)
+        return Response(serializer.data)
     else:
-        return Response(serializer.errors)
-    return Response(serializer.data)
+        return Response({'error': 'No se ha enviado la nueva contraseña'}, status=status.HTTP_400_BAD_REQUEST)
