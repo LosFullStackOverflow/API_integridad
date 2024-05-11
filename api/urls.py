@@ -1,7 +1,11 @@
-from django.urls import path
+from django.urls import include, path
 from . import views
+from rest_framework import routers
+
+router = routers.DefaultRouter()
 
 urlpatterns = [
+    path('', include(router.urls)),
     path('clientes/', views.get_all, name="getAllUsers"),
     path('cliente/<str:email>/', views.get_one, name="getOneUsers"),
     path('cliente/', views.create, name="createUser"),
