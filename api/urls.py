@@ -10,4 +10,7 @@ urlpatterns = [
     path('cliente/<str:email>/', views.get_one, name="getOneUsers"),
     path('cliente/', views.create, name="createUser"),
     path('cliente/update/<str:email>/', views.update, name="updateUser"),
+    path('estado/<str:email>/', views.get_estadoPOST, name="estadoPost"),
+    path('estado/<str:email>/get/', views.get_estado, name="estado"),
+
 ]

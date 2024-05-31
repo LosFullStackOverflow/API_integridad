@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
-from base.models import Cliente
+from rest_framework import serializers
+from base.models import Cliente, Estado
 
 
 class ClienteSerializer(ModelSerializer):
@@ -13,3 +14,9 @@ class ClienteWithOutPasswordSerializer(ModelSerializer):
     class Meta:
         model = Cliente
         exclude = ['password']
+
+
+class EstadoSerializer(ModelSerializer):
+    class Meta:
+        model = Estado
+        fields = '__all__'
